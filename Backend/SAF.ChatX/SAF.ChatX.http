@@ -1,0 +1,6 @@
+@SAF.ChatX_HostAddress = http://localhost:5152
+
+GET {{SAF.ChatX_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
