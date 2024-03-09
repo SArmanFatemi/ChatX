@@ -13,4 +13,5 @@ public record SendMessageRequest(string Message) : IValidatableRequest
     }
 }
 
-public record SendMessageResponse(string Username, string Message);
+public record SendMessageResponse(string Username, string Message, ResponseTypeEnum Type = ResponseTypeEnum.Information) 
+    : BaseResponse(Message, Type);
