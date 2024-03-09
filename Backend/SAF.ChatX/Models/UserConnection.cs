@@ -1,8 +1,10 @@
 ﻿namespace SAF.ChatX.Models;
 
-public class UserConnection
+public class UserConnection(string connectionId, string username, string chatRoom)
 {
-    public string Username { get; set; } = string.Empty;
+    public string ConnectionId { get; set; } = connectionId;
 
-    public string ChatRoom { get; set; } = string.Empty;
+    public string Username { get; set; } = username;
+
+    public string ChatRoom { get; set; } = chatRoom;
 }
