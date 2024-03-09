@@ -1,4 +1,16 @@
-﻿namespace SAF.ChatX.Dtos;
+﻿using SAF.ChatX.Dtos.Common;
 
-public record SendMessageRequest(string Message);
+namespace SAF.ChatX.Dtos;
+
+public record SendMessageRequest(string Message) : IValidatableRequest
+{
+    public bool IsValid()
+    {
+        if (string.IsNullOrWhiteSpace(Message))
+            return false;
+        
+        return true;
+    }
+}
+
 public record SendMessageResponse(string Username, string Message);

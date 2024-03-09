@@ -1,10 +1,17 @@
-﻿namespace SAF.ChatX.Hubs;
+﻿using Microsoft.AspNetCore.SignalR;
+using SAF.ChatX.Hubs.Filters;
+
+namespace SAF.ChatX.Hubs;
 
 public static class WebApplicationExtensions
 {
     public static IServiceCollection AddHubs(this IServiceCollection services)
     {
-        services.AddSignalR(option => option.EnableDetailedErrors = true);
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+            options.AddFilter<RequestValidatorFilter>();
+        });
         return services;
     }
     
