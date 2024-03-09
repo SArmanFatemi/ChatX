@@ -3,8 +3,8 @@
     <div class="col-4">
       <template v-if="!authenticatedUserStore.isAuthenticated">
         <q-input v-model="username" label="Username" />
-        <q-input v-model="chatroom" label="Chatroom" :readonly="connection != null" />
-        <q-btn class="q-my-md" label="Join Chatroom" @click="JoinSpecificChatRoom(username, chatroom)" />
+        <q-input v-model="room" label="Room" :readonly="connection != null" />
+        <q-btn class="q-my-md" label="Join Room" @click="JoinRoom(username, room)" />
       </template>
 
       <template v-if="authenticatedUserStore.isAuthenticated">
@@ -30,26 +30,26 @@ const authenticatedUserStore = useAuthenticatedUserStore();
 
 const connection = ref<HubConnection | null>(null);
 const username = ref('Arman');
-const chatroom = ref('backenders-room');
+const room = ref('backenders-room');
 const message = ref('');
 
 const messages = ref<Message[]>([]);
 
-async function JoinSpecificChatRoom(username: string, chatroom: string) {
+async function JoinRoom(username: string, room: string) {
   try {
     connection.value = new HubConnectionBuilder()
       .withUrl('https://localhost:1501/chat')
       .configureLogging(LogLevel.Information)
       .build();
 
-    connection.value.on('JoinSpecificChatRoom', (serverUsername, serverMessage) => {
+    connection.value.on(JoinRoom.name, (serverUsername, serverMessage) => {
       if (authenticatedUserStore.isAuthenticated && serverUsername !== authenticatedUserStore.current.username) {
         $q.notify({
           message: serverMessage,
           caption: 'Just now',
           icon: 'announcement',
           color: 'primary',
-          position: 'bottom-right'
+          position: 'bottom'
         })
       }
     });
@@ -61,17 +61,17 @@ async function JoinSpecificChatRoom(username: string, chatroom: string) {
 
     await connection.value.start()
       .then(() => {
-        authenticatedUserStore.login(username, chatroom);
+        authenticatedUserStore.login(username, room);
 
         $q.notify({
-          message: `Welcome to the ${chatroom}, ${username}!`,
+          message: `Welcome to the ${room}, ${username}!`,
           icon: 'check',
           color: 'secondary',
           position: 'bottom'
         })
       })
     connection.value.onreconnected(() => {
-      authenticatedUserStore.login(username, chatroom);
+      authenticatedUserStore.login(username, room);
       console.log('Connection re-established');
     });
     connection.value.onreconnecting(() => {
@@ -83,7 +83,7 @@ async function JoinSpecificChatRoom(username: string, chatroom: string) {
       console.log('Connection closed');
     });
 
-    await connection.value.invoke('JoinSpecificChatRoom', { username, chatroom });
+    await connection.value.invoke(JoinRoom.name, { username, room });
   } catch (error) {
     console.log(error);
   }
@@ -93,7 +93,7 @@ async function SendMessage(message: string) {
   if (connection.value === null) return;
 
   try {
-    await connection.value.invoke('SendMessage', message);
+    await connection.value.invoke('SendMessage', { message });
   } catch (error) {
     console.log(error);
   }

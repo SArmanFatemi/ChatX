@@ -3,25 +3,25 @@ import { defineStore } from 'pinia';
 export const useAuthenticatedUserStore = defineStore('authenticated-user-store', {
   state: () => ({
     username: '',
-    chatroom: '',
+    room: '',
   }),
   getters: {
     current: (state) => {
       return {
         username: state.username,
-        chatroom: state.chatroom
+        room: state.room
       }
     },
     isAuthenticated: (state) => !!state.username,
   },
   actions: {
-    login(username: string, chatroom: string) {
+    login(username: string, room: string) {
       this.username = username;
-      this.chatroom = chatroom;
+      this.room = room;
     },
     logout() {
       this.username = '';
-      this.chatroom = '';
+      this.room = '';
     },
   },
 });
