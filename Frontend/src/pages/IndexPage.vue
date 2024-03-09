@@ -24,6 +24,9 @@ import MessageBox from 'src/components/MessageBox.vue';
 import { Message } from 'src/components/Messages.model';
 import { useAuthenticatedUserStore } from 'src/stores/authenticated-user-store';
 import { useQuasar } from 'quasar'
+import { JoinRoomResponse } from 'src/hubs/responses/JoinRoom.responses';
+import { ResponseUtilities } from 'src/hubs/Common.responses';
+import { SendMessageResponse } from 'src/hubs/responses/SendMessage.responses';
 
 const $q = useQuasar()
 const authenticatedUserStore = useAuthenticatedUserStore();
@@ -42,34 +45,26 @@ async function JoinRoom(username: string, room: string) {
       .configureLogging(LogLevel.Information)
       .build();
 
-    connection.value.on(JoinRoom.name, response => {
-      if (authenticatedUserStore.isAuthenticated && response.username !== authenticatedUserStore.current.username) {
-        $q.notify({
-          message: response.message,
-          caption: 'Just now',
-          icon: 'announcement',
-          color: 'primary',
-          position: 'bottom'
-        })
+    connection.value.on(JoinRoom.name, (response: JoinRoomResponse) => {
+      $q.notify({
+        message: response.message,
+        caption: 'Just now',
+        icon: 'announcement',
+        color: ResponseUtilities.GetColor(response),
+        position: 'bottom'
+      })
+
+      if (ResponseUtilities.IsSuccessful(response)) {
+        authenticatedUserStore.login(username, room);
       }
     });
 
-    connection.value.on('SendMessage', response => {
+    connection.value.on('SendMessage', (response: SendMessageResponse) => {
       messages.value.push({ sender: response.username, content: response.message });
       message.value = '';
     });
 
-    await connection.value.start()
-      .then(() => {
-        authenticatedUserStore.login(username, room);
-
-        $q.notify({
-          message: `Welcome to the ${room}, ${username}!`,
-          icon: 'check',
-          color: 'secondary',
-          position: 'bottom'
-        })
-      })
+    await connection.value.start();
 
     connection.value.onreconnected(() => {
       authenticatedUserStore.login(username, room);
@@ -83,7 +78,14 @@ async function JoinRoom(username: string, room: string) {
 
     connection.value.onclose(() => {
       authenticatedUserStore.logout();
-      console.log('Connection closed');
+
+      $q.notify({
+        message: 'You have been disconnected from the server. Please try again later.',
+        caption: 'Connection closed',
+        icon: 'announcement',
+        color: 'negative',
+        position: 'bottom'
+      })
     });
 
     await connection.value.invoke(JoinRoom.name, { username, room });
