@@ -42,10 +42,10 @@ async function JoinRoom(username: string, room: string) {
       .configureLogging(LogLevel.Information)
       .build();
 
-    connection.value.on(JoinRoom.name, (serverUsername, serverMessage) => {
-      if (authenticatedUserStore.isAuthenticated && serverUsername !== authenticatedUserStore.current.username) {
+    connection.value.on(JoinRoom.name, response => {
+      if (authenticatedUserStore.isAuthenticated && response.username !== authenticatedUserStore.current.username) {
         $q.notify({
-          message: serverMessage,
+          message: response.message,
           caption: 'Just now',
           icon: 'announcement',
           color: 'primary',
@@ -54,8 +54,8 @@ async function JoinRoom(username: string, room: string) {
       }
     });
 
-    connection.value.on('SendMessage', (serverUsername, serverMessage) => {
-      messages.value.push({ sender: serverUsername, content: serverMessage });
+    connection.value.on('SendMessage', response => {
+      messages.value.push({ sender: response.username, content: response.message });
       message.value = '';
     });
 
@@ -70,14 +70,17 @@ async function JoinRoom(username: string, room: string) {
           position: 'bottom'
         })
       })
+
     connection.value.onreconnected(() => {
       authenticatedUserStore.login(username, room);
       console.log('Connection re-established');
     });
+
     connection.value.onreconnecting(() => {
       authenticatedUserStore.logout();
       console.log('Connection lost, reconnecting...');
     });
+
     connection.value.onclose(() => {
       authenticatedUserStore.logout();
       console.log('Connection closed');
