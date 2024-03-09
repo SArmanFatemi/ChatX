@@ -7,15 +7,15 @@ export type ResponseType = 'Information' | 'Success' | 'Warning' | 'Error';
 function GetColor(response: BaseResponse): string {
     switch (response.type) {
         case 'Information':
-            return "info";
+            return 'info';
         case 'Success':
-            return "positive";
+            return 'positive';
         case 'Warning':
-            return "warning";
+            return 'warning';
         case 'Error':
-            return "negative";
+            return 'negative';
         default:
-            return "black";
+            return 'black';
     }
 }
 
