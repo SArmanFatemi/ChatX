@@ -10,6 +10,7 @@ public static class WebApplicationExtensions
         services.AddSignalR(options =>
         {
             options.EnableDetailedErrors = true;
+            options.AddFilter<ApiDesignValidatorFilter>();
             options.AddFilter<RequestValidatorFilter>();
         });
         return services;

@@ -8,6 +8,7 @@ public class RequestValidatorFilter : IHubFilter
     public async ValueTask<object?> 
         InvokeMethodAsync(HubInvocationContext invocationContext, Func<HubInvocationContext, ValueTask<object?>> next)
     {
+        // Since we are registering ApiDesignValidatorFilter before this filter, we can be sure that we have only one argument
         if (invocationContext.HubMethodArguments[0] is IValidatableRequest request)
         {
             if (request.IsValid() is false)
