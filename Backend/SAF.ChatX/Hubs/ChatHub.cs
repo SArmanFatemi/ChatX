@@ -7,32 +7,32 @@ namespace SAF.ChatX.Hubs;
 
 public class ChatHub(DatabaseContext databaseContext) : Hub
 {
-    public async Task JoinSpecificChatRoom(UserConnectionRequest request)
+    public async Task JoinRoom(JoinRoomRequest request)
     {
 
-        var usernameAlreadyExistsInChatroom = databaseContext.Connections
-            .Where(c => c.ChatRoom == request.ChatRoom)
+        var usernameAlreadyExistsInRoom = databaseContext.Connections
+            .Where(c => c.Room == request.Room)
             .Any(c => c.Username == request.Username);
-        if (usernameAlreadyExistsInChatroom)
+        if (usernameAlreadyExistsInRoom)
         {
-            // TODO: Return a response to the client indicating that the username already exists in the chatroom
+            // TODO: Return a response to the client indicating that the username already exists in the room
         }
         
-        UserConnection connection = new(Context.ConnectionId, request.Username, request.ChatRoom);
+        UserConnection connection = new(Context.ConnectionId, request.Username, request.Room);
         databaseContext.Connections.Add(connection);
         
-        await Groups.AddToGroupAsync(connection.ConnectionId, connection.ChatRoom);
-        await Clients.Group(connection.ChatRoom)
-            .SendAsync(nameof(JoinSpecificChatRoom), request.Username, $"{request.Username} joined the {request.ChatRoom}");
+        await Groups.AddToGroupAsync(connection.ConnectionId, connection.Room);
+        await Clients.Group(connection.Room)
+            .SendAsync(nameof(JoinRoom), request.Username, $"{request.Username} joined the {request.Room}");
     }
 
-    public async Task SendMessage(string message)
+    public async Task SendMessage(SendMessageRequest request)
     {
         var existingConnection = databaseContext.Connections.SingleOrDefault(c => c.ConnectionId == Context.ConnectionId);
         if (existingConnection is not null)
         {
-            await Clients.Group(existingConnection.ChatRoom)
-                .SendAsync(nameof(SendMessage), existingConnection.Username, message);
+            await Clients.Group(existingConnection.Room)
+                .SendAsync(nameof(SendMessage), existingConnection.Username, request.Message);
         }
     }
 }
