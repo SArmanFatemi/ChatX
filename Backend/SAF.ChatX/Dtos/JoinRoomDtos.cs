@@ -16,5 +16,5 @@ public record JoinRoomRequest(string Username, string Room) : IValidatableReques
     }
 }
 
-public record JoinRequestBaseResponse(string Username, string Message, ResponseTypeEnum Type = ResponseTypeEnum.Information) 
+public record JoinRequestBaseResponse(string Username, string Room, string Message, ResponseTypeEnum Type = ResponseTypeEnum.Information) 
     : BaseResponse(Message, Type);

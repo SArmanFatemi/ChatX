@@ -16,7 +16,7 @@ public class ChatHub(DatabaseContext databaseContext) : Hub
         if (usernameAlreadyExistsInRoom)
         {
             await Clients.Caller
-                .SendAsync(nameof(JoinRoom), new JoinRequestBaseResponse(string.Empty, "Username already exists in the room", ResponseTypeEnum.Error));
+                .SendAsync(nameof(JoinRoom), new JoinRequestBaseResponse(string.Empty, request.Room, "Username already exists in the room", ResponseTypeEnum.Error));
             return;
         }
         
@@ -26,10 +26,10 @@ public class ChatHub(DatabaseContext databaseContext) : Hub
         await Groups.AddToGroupAsync(connection.ConnectionId, connection.Room);
         // Send welcome message to caller
         await Clients.Caller
-            .SendAsync(nameof(JoinRoom), new JoinRequestBaseResponse(request.Username, $"Dear {connection.Username}, You joined the {connection.Room}"));
+            .SendAsync(nameof(JoinRoom), new JoinRequestBaseResponse(connection.Username, connection.Room, $"Dear {connection.Username}, You joined the {connection.Room}"));
         // Send notification to other users in the room
         await Clients.GroupExcept(connection.Room, connection.ConnectionId)
-            .SendAsync(nameof(JoinRoom), new JoinRequestBaseResponse(request.Username, $"{request.Username} joined the {request.Room}"));
+            .SendAsync(nameof(JoinRoom), new JoinRequestBaseResponse(connection.Username, connection.Room, $"{connection.Username} joined the {request.Room}"));
     }
 
     public async Task SendMessage(SendMessageRequest request)
