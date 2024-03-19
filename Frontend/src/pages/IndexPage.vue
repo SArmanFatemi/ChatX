@@ -36,12 +36,12 @@ const connection = ref<HubConnection>(new HubConnectionBuilder()
 const messages = ref<Message[]>([]);
 const sendMessageComponent = ref();
 
-async function JoinRoom(username: string, room: string) {
-  await connection.value.invoke(JoinRoom.name, { username, room });
+function JoinRoom(username: string, room: string) {
+  connection.value.invoke(JoinRoom.name, { username, room });
 }
 
-async function SendMessage(message: string) {
-  await connection.value.invoke('SendMessage', { message });
+function SendMessage(message: string) {
+  connection.value.invoke('SendMessage', { message });
 }
 
 async function Start() {

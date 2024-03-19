@@ -7,15 +7,17 @@
 import { ref, defineEmits, defineExpose } from 'vue';
 
 const message = ref('');
-const emits = defineEmits(['SendMessage'])
-defineExpose({
-    Clear
-})
+const emits = defineEmits<{
+    SendMessage: [message: string]
+}>();
 
-async function SendMessage(): Promise<void> {
+function SendMessage(): void {
     emits('SendMessage', message.value)
 }
 
+defineExpose({
+    Clear
+})
 function Clear() {
     message.value = '';
 }

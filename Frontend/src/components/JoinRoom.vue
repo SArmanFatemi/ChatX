@@ -10,9 +10,11 @@ import { ref, defineEmits } from 'vue';
 const username = ref('Arman');
 const room = ref('backenders-room');
 
-const emits = defineEmits(['JoinRoom'])
+const emits = defineEmits<{
+    JoinRoom: [username: string, room: string]
+}>();
 
-async function JoinRoom(): Promise<void> {
+function JoinRoom(): void {
     emits('JoinRoom', username.value, room.value)
 }
 </script>
